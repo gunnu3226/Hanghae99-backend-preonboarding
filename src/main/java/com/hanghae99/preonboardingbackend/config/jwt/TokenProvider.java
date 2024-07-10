@@ -23,7 +23,10 @@ public class TokenProvider implements InitializingBean {
     @Value("${jwt.secret}")
     private String secret;
     @Value("${jwt.token-validity-in-milliseconds}")
-    private long tokenValidityInMilliseconds;
+    private long tokenValidityInMs;
+    @Value("${jwt.refresh-token-validity-in-milliseconds}")
+    private long refreshTokenValidityInMs;
+
     private Key key;
 
     @Override
@@ -44,7 +47,17 @@ public class TokenProvider implements InitializingBean {
                 .claim(USER_ID, userId)
                 .claim(AUTHORITIES_KEY, authorities)
                 .setIssuedAt(date)
-                .setExpiration(new Date(date.getTime() + tokenValidityInMilliseconds))
+                .setExpiration(new Date(date.getTime() + tokenValidityInMs))
+                .signWith(key, signatureAlgorithm)
+                .compact();
+    }
+
+    public String createRefreshToken() {
+        Date date = new Date();
+
+        return BEARER_PREFIX +
+            Jwts.builder()
+                .setExpiration(new Date(date.getTime() + refreshTokenValidityInMs))
                 .signWith(key, signatureAlgorithm)
                 .compact();
     }
