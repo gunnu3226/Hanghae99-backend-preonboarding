@@ -3,9 +3,11 @@ package com.hanghae99.preonboardingbackend.config.jwt;
 import com.hanghae99.preonboardingbackend.model.entity.Authority;
 import java.util.Collection;
 import java.util.Set;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+@Getter
 public class UserDetailsImpl implements UserDetails {
 
     private Long userId;
@@ -24,7 +26,7 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        return (Collection<? extends GrantedAuthority>) authorities;
     }
 
     @Override

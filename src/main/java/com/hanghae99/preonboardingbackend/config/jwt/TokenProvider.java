@@ -24,6 +24,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Configuration
 @Slf4j
 public class TokenProvider implements InitializingBean {
+    public static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
     private static final String USER_ID = "userId";
     private static final String AUTHORITIES_KEY = "authorities";
@@ -73,7 +74,7 @@ public class TokenProvider implements InitializingBean {
     public boolean validateToken(final String token) {
         String parseToken = parseToken(token);
         try {
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(parseToken);
             return true;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
             log.info("Invalid JWT Token", e);
@@ -106,6 +107,7 @@ public class TokenProvider implements InitializingBean {
     ) {
         Long userId = ((Number) claims.get(USER_ID)).longValue();
         String username = claims.getSubject();
+        //맘대로 캐스팅 했다가 타입 안맞는 경우가 생길 수 있을까?
         Set<Authority> authorities = (Set<Authority>) claims.get(AUTHORITIES_KEY);
         return new UserDetailsImpl(userId, username, authorities);
     }
