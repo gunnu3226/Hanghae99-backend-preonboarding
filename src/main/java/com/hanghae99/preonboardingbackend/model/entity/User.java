@@ -18,7 +18,6 @@ public class User {
     // 자동 증가 되는
     @Id
     @Column(name = "user_id")
-    @JsonIgnore
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 

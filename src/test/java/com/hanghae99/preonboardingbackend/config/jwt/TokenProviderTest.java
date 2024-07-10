@@ -4,35 +4,57 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.hanghae99.preonboardingbackend.model.entity.Authority;
+import com.hanghae99.preonboardingbackend.model.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import java.security.Key;
 import java.util.Date;
+import java.util.Set;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-class TokenProviderTest implements JwtTest {
+@ExtendWith(MockitoExtension.class)
+class TokenProviderTest {
 
-    @Autowired
+    @InjectMocks
     private TokenProvider tokenProvider;
 
     @Value("${jwt.secret}")
     private String secretKey;
-    
+
     private Key key;
 
     @Value("${token-validity-in-milliseconds}")
     private long refreshTokenValidityInMs;
+
+    private String BEARER_PREFIX = "Bearer ";
+
+    private final String USER_ID = "userId";
+
+    private final String AUTHORIZATION_KEY = "auth";
+
+    private final Authority authority = new Authority("ROLE_USER");
+
+    private final User TEST_USER = User.builder()
+        .userId(1L)
+        .username("testUser")
+        .authorities(Set.of(authority))
+        .build();
 
     @BeforeEach
     public void setup() {
@@ -44,7 +66,11 @@ class TokenProviderTest implements JwtTest {
     @DisplayName("AccessToken 생성 성공")
     void generateAccessToken() {
         //when
-        String token = tokenProvider.createAccessToken(TEST_USER.getUsername());
+        String token = tokenProvider.createAccessToken(
+            TEST_USER.getUserId(),
+            TEST_USER.getUsername(),
+            TEST_USER.getAuthorities()
+        );
 
         //then
         Claims claims = Jwts.parserBuilder()
@@ -55,7 +81,7 @@ class TokenProviderTest implements JwtTest {
 
         assertNotNull(token);
         Assertions.assertThat(claims.getSubject()).isEqualTo(TEST_USER.getUsername());
-        Assertions.assertThat(claims.get(MEMBER_ID)).isEqualTo(TEST_USER.getUserId());
+        Assertions.assertThat(claims.get(USER_ID)).isEqualTo(TEST_USER.getUserId());
         Assertions.assertThat(claims.get(AUTHORIZATION_KEY)).isEqualTo(TEST_USER.getAuthorities());
     }
 
@@ -126,7 +152,7 @@ class TokenProviderTest implements JwtTest {
             Date expiration = new Date(now.getTime() - 1000);
              String token = BEARER_PREFIX + Jwts.builder()
                     .setSubject(TEST_USER.getUsername())
-                    .claim(MEMBER_ID, TEST_USER.getUserId())
+                    .claim(USER_ID, TEST_USER.getUserId())
                     .claim(AUTHORIZATION_KEY, TEST_USER.getAuthorities())
                     .setExpiration(expiration)
                     .setIssuedAt(now)
