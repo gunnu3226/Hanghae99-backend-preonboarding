@@ -1,26 +1,31 @@
 package com.hanghae99.preonboardingbackend.config.jwt;
 
 import com.hanghae99.preonboardingbackend.model.entity.Authority;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
+import java.security.Key;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-
-import java.security.Key;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Configuration
 @Slf4j
 public class TokenProvider implements InitializingBean {
     private static final String BEARER_PREFIX = "Bearer ";
-    public static final String USER_ID = "userId";
+    private static final String USER_ID = "userId";
     private static final String AUTHORITIES_KEY = "authorities";
     private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
     @Value("${jwt.secret}")
@@ -65,7 +70,7 @@ public class TokenProvider implements InitializingBean {
                 .compact();
     }
 
-    public boolean validateToken(String token) {
+    public boolean validateToken(final String token) {
         String parseToken = parseToken(token);
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
@@ -82,7 +87,39 @@ public class TokenProvider implements InitializingBean {
         return false;
     }
 
-    private String parseToken(String token) {
+    public Authentication createAuthentication(final String accessToken) {
+        Claims claims = parseClaims(accessToken);
+
+        if (claims.get(AUTHORITIES_KEY) == null) {
+            throw new RuntimeException("권한 정보가 없는 토큰입니다.");
+        }
+
+        UserDetails userDetails = getUserDetailsFromToken(claims);
+        Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
+
+        return new UsernamePasswordAuthenticationToken(
+            userDetails, null, authorities);
+    }
+
+    private UserDetails getUserDetailsFromToken(
+        final Claims claims
+    ) {
+        Long userId = ((Number) claims.get(USER_ID)).longValue();
+        String username = claims.getSubject();
+        Set<Authority> authorities = (Set<Authority>) claims.get(AUTHORITIES_KEY);
+        return new UserDetailsImpl(userId, username, authorities);
+    }
+
+    private Claims parseClaims(String accessToken) {
+        return Jwts.parserBuilder()
+            .setSigningKey(key)
+            .build()
+            .parseClaimsJws(accessToken)
+            .getBody();
+    }
+
+    private String parseToken(final String token) {
         return token.replace(BEARER_PREFIX,"");
     }
+
 }
