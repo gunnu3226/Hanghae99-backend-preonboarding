@@ -1,5 +1,6 @@
-package com.hanghae99.preonboardingbackend.config.jwt;
+package com.hanghae99.preonboardingbackend.config;
 
+import com.hanghae99.preonboardingbackend.config.jwt.TokenProvider;
 import com.hanghae99.preonboardingbackend.config.jwt.filter.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -23,14 +24,10 @@ public class SecurityConfig {
         this.tokenProvider = tokenProvider;
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable);
+        http.csrf((csrf) -> csrf.disable());
 
         http.sessionManagement((sessionManagement) ->
             sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -38,13 +35,14 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests((authorizeHttpRequests) ->
             authorizeHttpRequests
-                .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
-                .requestMatchers("/members/signup").permitAll()
-                .requestMatchers("/members/login").permitAll()
-                .requestMatchers("/test").hasRole("ROLE_USER")
+                .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
+                .permitAll()
+                .requestMatchers("/users/signup").permitAll()
+                .requestMatchers("/users/login").permitAll()
+                .requestMatchers("/test").hasRole("USER")
                 .anyRequest().authenticated()
         );
-        // 필터 관리
+
         http.addFilterBefore(new JwtFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
