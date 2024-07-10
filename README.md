@@ -73,64 +73,48 @@
 ### Day 2 - 백엔드 배포하기
 
 ---
-**테스트 완성**
+**토큰 발행과 유효성 확인**
 
-- [ ]  백엔드 유닛 테스트 완성하기
+- [ ]  Access / Refresh Token 발행과 검증에 관한 **테스트 시나리오** 작성하기
+- Access Token 테스트
+  1. Access Token 발행 테스트
+     1. 사용자명과 비밀번호를 사용하여 로그인 요청을 보냅니다.
+     2. 서버는 Access Token을 생성하고, 응답에 포함시켜 반환합니다.
+     3. Access Token의 형식 및 내용을 확인합니다.
+    
+  2. Access Token 검증 테스트
+     1. 유효한 Access Token을 사용하여 접근 요청을 보냅니다.
+     2. 서버는 토큰의 유효성을 확인하고, 사용자 인증을 성공시킵니다.
+     3. 보호된 리소스에 접근이 허용되는지 확인합니다.
 
-**로직 작성**
+  3. 만료된 Access Token 검증 테스트
+     1. 만료된 Access Token을 사용하여 보호된 리소스에 접근 요청을 보냅니다.
+     2. 서버는 토큰의 만료를 확인하고, 접근을 거부합니다.
+     3. 적절한 오류 응답(예: 401 Unauthorized)을 확인합니다.
 
-- [ ]  백엔드 로직을 Spring Boot로
-    - [ ]  회원가입 - /signup
-        - [ ]  Request Message
+- Refresh Token 테스트
+    1. Refresh Token 발행 테스트
+        1. 사용자명과 비밀번호를 사용하여 로그인 요청을 보냅니다.
+        2. 서버는 Refresh Token을 생성하고, 응답에 포함시켜 반환합니다.
+        3. Refresh Token의 형식 및 내용을 확인합니다.
 
-           ```json
-           {
-               "username": "JIN HO",
-               "password": "12341234",
-               "nickname": "Mentos"
-           }
-           ```
+    2. Refresh Token을 통한 Access Token 재발행 테스트
+        1. 유효한 Refresh Token을 사용하여 새로운 Access Token 요청을 보냅니다.
+        2. 서버는 Refresh Token의 유효성을 확인하고, 새로운 Access Token을 생성하여 반환합니다.
+        3. 새로운 Access Token의 형식 및 내용을 확인합니다.
 
-        - [ ]  Response Message
+    3. 만료된 Refresh Token을 통한 Access Token 재발행 테스트
+        1. 만료된 Access Token을 사용하여 보호된 리소스에 접근 요청을 보냅니다.
+        2. 서버는 토큰의 만료를 확인하고, 접근을 거부합니다.
+        3. 적절한 오류 응답(예: 401 Unauthorized)을 확인합니다.
 
-           ```json
-           {
-               "username": "JIN HO",
-               "nickname": "Mentos",
-               "authorities": [
-                       {
-                               "authorityName": "ROLE_USER"
-                       }
-               ]		
-           }
-           ```
+**유닛 테스트 작성**
 
-    - [ ]  로그인 - /sign
-        - [ ]  Request Message
+- [ ]  JUnit를 이용한 JWT Unit 테스트 코드 작성해보기
 
-           ```json
-           {
-               "username": "JIN HO",
-               "password": "12341234"
-           }
-           ```
+  https://preasim.github.io/39
 
-        - [ ]  Response Message
-
-           ```json
-           {
-               "token": "eKDIkdfjoakIdkfjpekdkcjdkoIOdjOKJDFOlLDKFJKL"
-           }
-           ```
-
-
-**배포해보기**
-
-- [ ]  AWS EC2 에 배포하기
-
-**API 접근과 검증**
-
-- [ ]  Swagger UI 로 접속 가능하게 하기
+  [https://velog.io/@da_na/Spring-Security-JWT-Spring-Security-Controller-Unit-Test하기](https://velog.io/@da_na/Spring-Security-JWT-Spring-Security-Controller-Unit-Test%ED%95%98%EA%B8%B0)
 
 ### Day 3 - 백엔드 개선하기
 
