@@ -2,11 +2,13 @@ package com.hanghae99.preonboardingbackend.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import java.util.Set;
 
+@Getter
 @Entity
 @Builder
 @AllArgsConstructor
