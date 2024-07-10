@@ -1,8 +1,11 @@
 package com.hanghae99.preonboardingbackend.config.jwt;
 
 import com.hanghae99.preonboardingbackend.model.entity.Authority;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
 import java.util.Date;
 import java.util.Set;
@@ -23,7 +26,7 @@ public class TokenProvider implements InitializingBean {
     @Value("${jwt.secret}")
     private String secret;
     @Value("${jwt.token-validity-in-milliseconds}")
-    private long tokenValidityInMs;
+    private long accessTokenValidityInMs;
     @Value("${jwt.refresh-token-validity-in-milliseconds}")
     private long refreshTokenValidityInMs;
 
@@ -47,7 +50,7 @@ public class TokenProvider implements InitializingBean {
                 .claim(USER_ID, userId)
                 .claim(AUTHORITIES_KEY, authorities)
                 .setIssuedAt(date)
-                .setExpiration(new Date(date.getTime() + tokenValidityInMs))
+                .setExpiration(new Date(date.getTime() + accessTokenValidityInMs))
                 .signWith(key, signatureAlgorithm)
                 .compact();
     }
@@ -60,5 +63,26 @@ public class TokenProvider implements InitializingBean {
                 .setExpiration(new Date(date.getTime() + refreshTokenValidityInMs))
                 .signWith(key, signatureAlgorithm)
                 .compact();
+    }
+
+    public boolean validateToken(String token) {
+        String parseToken = parseToken(token);
+        try {
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            return true;
+        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
+            log.info("Invalid JWT Token", e);
+        } catch (ExpiredJwtException e) {
+            log.info("Expired JWT Token", e);
+        } catch (UnsupportedJwtException e) {
+            log.info("Unsupported JWT Token", e);
+        } catch (IllegalArgumentException e) {
+            log.info("JWT claims string is empty", e);
+        }
+        return false;
+    }
+
+    private String parseToken(String token) {
+        return token.replace(BEARER_PREFIX,"");
     }
 }
