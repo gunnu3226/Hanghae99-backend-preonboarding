@@ -4,6 +4,7 @@ import com.hanghae99.preonboardingbackend.config.jwt.TokenProvider;
 import com.hanghae99.preonboardingbackend.dto.ResponseDTO;
 import com.hanghae99.preonboardingbackend.dto.request.LoginRequestDTO;
 import com.hanghae99.preonboardingbackend.dto.request.SignupRequestDTO;
+import com.hanghae99.preonboardingbackend.dto.response.LoginResponseDTO;
 import com.hanghae99.preonboardingbackend.dto.response.SignupResponseDTO;
 import com.hanghae99.preonboardingbackend.dto.response.TokenResponseDTO;
 import com.hanghae99.preonboardingbackend.service.UserService;
@@ -67,7 +68,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ResponseDTO<Void>> login(
+    public ResponseEntity<ResponseDTO<LoginResponseDTO>> login(
         HttpServletResponse response,
         @RequestBody LoginRequestDTO loginRequestDTO
     ) {
@@ -76,8 +77,10 @@ public class UserController {
             loginRequestDTO.password()
         );
         response.addHeader(TokenProvider.AUTHORIZATION_HEADER, responseDTO.accessToken());
-        return ResponseEntity.ok(
-            new ResponseDTO<>(HttpStatus.OK.value(), "로그인성공")
+        return ResponseEntity.ok(new ResponseDTO<>(
+            HttpStatus.OK.value(),
+            "로그인성공",
+            LoginResponseDTO.from(responseDTO))
         );
     }
 
