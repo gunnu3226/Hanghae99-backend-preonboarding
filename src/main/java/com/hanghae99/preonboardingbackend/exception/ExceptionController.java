@@ -1,4 +1,4 @@
-package com.hanghae99.preonboardingbackend.controller;
+package com.hanghae99.preonboardingbackend.exception;
 
 import com.hanghae99.preonboardingbackend.dto.ResponseDTO;
 import com.hanghae99.preonboardingbackend.exception.user.ExistUsernameException;
