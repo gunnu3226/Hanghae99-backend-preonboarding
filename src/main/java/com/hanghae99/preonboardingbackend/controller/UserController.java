@@ -4,6 +4,7 @@ import com.hanghae99.preonboardingbackend.config.jwt.TokenProvider;
 import com.hanghae99.preonboardingbackend.dto.ResponseDTO;
 import com.hanghae99.preonboardingbackend.dto.request.LoginRequestDTO;
 import com.hanghae99.preonboardingbackend.dto.request.SignupRequestDTO;
+import com.hanghae99.preonboardingbackend.dto.response.SignupResponseDTO;
 import com.hanghae99.preonboardingbackend.dto.response.TokenResponseDTO;
 import com.hanghae99.preonboardingbackend.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,26 +31,38 @@ public class UserController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<ResponseDTO<Void>> signup(
+    public ResponseEntity<ResponseDTO<SignupResponseDTO>> signup(
         @Valid @RequestBody SignupRequestDTO signupRequestDTO
     ) {
         log.info("test");
-        userService.signup(signupRequestDTO.username(), signupRequestDTO.password());
+        SignupResponseDTO responseDTO = userService.signup(
+            signupRequestDTO.username(),
+            signupRequestDTO.password(),
+            signupRequestDTO.nickname()
+        );
 
-        return ResponseEntity.ok(
-            new ResponseDTO<>(HttpStatus.OK.value(), "회원가입성공")
+        return ResponseEntity.ok(new ResponseDTO<>(
+            HttpStatus.OK.value(),
+            "회원가입성공",
+            responseDTO)
         );
     }
 
     @PostMapping("/signup-no-role")
-    public ResponseEntity<ResponseDTO<Void>> signupNoRole(
+    public ResponseEntity<ResponseDTO<SignupResponseDTO>> signupNoRole(
         @Valid @RequestBody SignupRequestDTO signupRequestDTO
     ) {
         log.info("test");
-        userService.signupNoRole(signupRequestDTO.username(), signupRequestDTO.password());
+        SignupResponseDTO responseDTO = userService.signupNoRole(
+            signupRequestDTO.username(),
+            signupRequestDTO.password(),
+            signupRequestDTO.nickname()
+        );
 
-        return ResponseEntity.ok(
-            new ResponseDTO<>(HttpStatus.OK.value(), "회원가입성공")
+        return ResponseEntity.ok(new ResponseDTO<>(
+            HttpStatus.OK.value(),
+            "회원가입성공",
+            responseDTO)
         );
     }
 

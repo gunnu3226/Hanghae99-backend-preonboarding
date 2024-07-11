@@ -3,6 +3,7 @@ package com.hanghae99.preonboardingbackend.service;
 import com.hanghae99.preonboardingbackend.config.PasswordUtil;
 import com.hanghae99.preonboardingbackend.config.jwt.TokenProvider;
 import com.hanghae99.preonboardingbackend.config.jwt.UserDetailsImpl;
+import com.hanghae99.preonboardingbackend.dto.response.SignupResponseDTO;
 import com.hanghae99.preonboardingbackend.dto.response.TokenResponseDTO;
 import com.hanghae99.preonboardingbackend.exception.user.ExistUsernameException;
 import com.hanghae99.preonboardingbackend.model.entity.Authority;
@@ -57,7 +58,8 @@ public class UserService {
     }
 
     @Transactional
-    public void signup(final String username, final String password) {
+    public SignupResponseDTO signup(final String username, final String password,
+        final String nickname) {
         if (userRepository.findByUsername(username).isPresent()) {
             throw new ExistUsernameException("해당 username은 이미 존재합니다.");
         }
@@ -65,21 +67,28 @@ public class UserService {
         User savedUser = userRepository.save(User.builder()
             .username(username)
             .password(encodedPassword)
+            .nickname(nickname)
             .build());
 
         Authority authority = authorityRepository.findByAuthorityName(ROLE_USER);
         savedUser.addAuthorities(authority);
+
+        return SignupResponseDTO.from(savedUser);
     }
 
     @Transactional
-    public void signupNoRole(final String username, final String password) {
+    public SignupResponseDTO signupNoRole(final String username, final String password,
+        final String nickname) {
         if (userRepository.findByUsername(username).isPresent()) {
             throw new ExistUsernameException("해당 username은 이미 존재합니다.");
         }
         String encodedPassword = passwordUtil.encode(password);
-        userRepository.save(User.builder()
+        User savedUser = userRepository.save(User.builder()
             .username(username)
             .password(encodedPassword)
+            .nickname(nickname)
             .build());
+
+        return SignupResponseDTO.from(savedUser);
     }
 }
