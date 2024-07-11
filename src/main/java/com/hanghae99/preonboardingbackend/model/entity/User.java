@@ -1,7 +1,10 @@
 package com.hanghae99.preonboardingbackend.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.annotation.PostConstruct;
 import jakarta.persistence.*;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -39,6 +42,14 @@ public class User {
     @JoinTable(
         name = "user_authority",
         joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "user_id")},
-        inverseJoinColumns = {@JoinColumn(name = "authority_name", referencedColumnName = "authority_name")})
+        inverseJoinColumns = {
+            @JoinColumn(name = "authority_name", referencedColumnName = "authority_name")})
     private Set<Authority> authorities;
+
+    public void addAuthorities(Authority authority) {
+        if (authorities == null) {
+            authorities = new LinkedHashSet<>();
+        }
+        authorities.add(authority);
+    }
 }

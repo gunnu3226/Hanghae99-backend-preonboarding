@@ -11,7 +11,9 @@ import io.jsonwebtoken.security.Keys;
 import java.security.Key;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,11 +52,15 @@ public class TokenProvider implements InitializingBean {
     ) {
         Date date = new Date();
 
+        List<String> authorityList = authorities.stream()
+            .map(Authority::getAuthorityName)
+            .toList();
+
         return BEARER_PREFIX +
             Jwts.builder()
                 .setSubject(username)
                 .claim(USER_ID, userId)
-                .claim(AUTHORITIES_KEY, authorities)
+                .claim(AUTHORITIES_KEY, authorityList)
                 .setIssuedAt(date)
                 .setExpiration(new Date(date.getTime() + accessTokenValidityInMs))
                 .signWith(key, signatureAlgorithm)
@@ -102,26 +108,28 @@ public class TokenProvider implements InitializingBean {
             userDetails, null, authorities);
     }
 
-    private UserDetails getUserDetailsFromToken(
-        final Claims claims
-    ) {
+    private UserDetails getUserDetailsFromToken(final Claims claims) {
         Long userId = ((Number) claims.get(USER_ID)).longValue();
         String username = claims.getSubject();
         //맘대로 캐스팅 했다가 타입 안맞는 경우가 생길 수 있을까?
-        Set<Authority> authorities = (Set<Authority>) claims.get(AUTHORITIES_KEY);
+        List<String> roles = (List<String>) claims.get(AUTHORITIES_KEY);
+
+        Set<Authority> authorities = roles.stream()
+            .map(Authority::new)
+            .collect(Collectors.toSet());
+
         return new UserDetailsImpl(userId, username, authorities);
     }
 
-    private Claims parseClaims(String accessToken) {
+    private Claims parseClaims(final String accessToken) {
         return Jwts.parserBuilder()
             .setSigningKey(key)
             .build()
-            .parseClaimsJws(accessToken)
+            .parseClaimsJws(parseToken(accessToken))
             .getBody();
     }
 
     private String parseToken(final String token) {
         return token.replace(BEARER_PREFIX,"");
     }
-
 }

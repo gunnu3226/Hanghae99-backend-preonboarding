@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -17,6 +18,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(securedEnabled = true)
 public class SecurityConfig {
     private final TokenProvider tokenProvider;
 
@@ -38,8 +40,9 @@ public class SecurityConfig {
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
                 .permitAll()
                 .requestMatchers("/users/signup").permitAll()
+                .requestMatchers("/users/signupV2").permitAll()
                 .requestMatchers("/users/login").permitAll()
-                .requestMatchers("/test").hasRole("USER")
+//                .requestMatchers("/users/test").hasRole("USER")
                 .anyRequest().authenticated()
         );
 

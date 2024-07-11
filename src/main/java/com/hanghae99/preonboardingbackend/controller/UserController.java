@@ -1,6 +1,5 @@
 package com.hanghae99.preonboardingbackend.controller;
 
-import com.hanghae99.preonboardingbackend.config.PasswordUtil;
 import com.hanghae99.preonboardingbackend.config.jwt.TokenProvider;
 import com.hanghae99.preonboardingbackend.dto.ResponseDTO;
 import com.hanghae99.preonboardingbackend.dto.request.LoginRequestDTO;
@@ -12,6 +11,8 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,6 +41,18 @@ public class UserController {
         );
     }
 
+    @PostMapping("/signupV2")
+    public ResponseEntity<ResponseDTO<Void>> signupV2(
+        @Valid @RequestBody SignupRequestDTO signupRequestDTO
+    ) {
+        log.info("test");
+        userService.signupV2(signupRequestDTO.username(), signupRequestDTO.password());
+
+        return ResponseEntity.ok(
+            new ResponseDTO<>(HttpStatus.OK.value(), "회원가입성공")
+        );
+    }
+
     @PostMapping("/login")
     public ResponseEntity<ResponseDTO<Void>> login(
         HttpServletResponse response,
@@ -53,5 +66,11 @@ public class UserController {
         return ResponseEntity.ok(
             new ResponseDTO<>(HttpStatus.OK.value(), "로그인성공")
         );
+    }
+
+    @Secured({"ROLE_USER"})
+    @GetMapping("test")
+    public ResponseEntity<Void> test() {
+        return ResponseEntity.ok().build();
     }
 }

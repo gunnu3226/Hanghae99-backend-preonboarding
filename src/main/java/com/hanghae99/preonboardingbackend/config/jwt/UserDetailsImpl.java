@@ -35,15 +35,15 @@ public class UserDetailsImpl implements UserDetails {
         this.authorities = authorities;
     }
 
-    public Set<Authority> getSetAuthorities() {
-        return authorities;
-    }
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return this.authorities.stream()
             .map(authority -> new SimpleGrantedAuthority(authority.getAuthorityName()))
             .collect(Collectors.toList());
+    }
+
+    public Set<Authority> getSetAuthorities() {
+        return authorities;
     }
 
     @Override
@@ -53,6 +53,6 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public String getUsername() {
-        return null;
+        return username;
     }
 }
