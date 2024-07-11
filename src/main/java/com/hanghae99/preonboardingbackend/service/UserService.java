@@ -9,14 +9,9 @@ import com.hanghae99.preonboardingbackend.model.entity.Authority;
 import com.hanghae99.preonboardingbackend.model.entity.User;
 import com.hanghae99.preonboardingbackend.repository.AuthorityRepository;
 import com.hanghae99.preonboardingbackend.repository.UserRepository;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import org.hibernate.result.UpdateCountOutput;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +26,6 @@ public class UserService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
     private final String ROLE_USER = "ROLE_USER";
-    private final String ROLE_A = "ROLE_A";
 
     public UserService(UserRepository userRepository, AuthorityRepository authorityRepository, TokenProvider tokenProvider,
         PasswordUtil passwordUtil, AuthenticationManagerBuilder authenticationManagerBuilder) {
@@ -78,7 +72,7 @@ public class UserService {
     }
 
     @Transactional
-    public void signupV2(final String username, final String password) {
+    public void signupNoRole(final String username, final String password) {
         if (userRepository.findByUsername(username).isPresent()) {
             throw new ExistUsernameException("해당 username은 이미 존재합니다.");
         }

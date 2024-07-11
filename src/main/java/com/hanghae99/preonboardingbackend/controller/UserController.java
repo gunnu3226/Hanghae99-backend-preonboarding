@@ -41,12 +41,12 @@ public class UserController {
         );
     }
 
-    @PostMapping("/signupV2")
-    public ResponseEntity<ResponseDTO<Void>> signupV2(
+    @PostMapping("/signup-no-role")
+    public ResponseEntity<ResponseDTO<Void>> signupNoRole(
         @Valid @RequestBody SignupRequestDTO signupRequestDTO
     ) {
         log.info("test");
-        userService.signupV2(signupRequestDTO.username(), signupRequestDTO.password());
+        userService.signupNoRole(signupRequestDTO.username(), signupRequestDTO.password());
 
         return ResponseEntity.ok(
             new ResponseDTO<>(HttpStatus.OK.value(), "회원가입성공")
