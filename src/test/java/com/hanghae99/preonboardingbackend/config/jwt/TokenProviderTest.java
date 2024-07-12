@@ -27,6 +27,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
 
 @ExtendWith(MockitoExtension.class)
 class TokenProviderTest {
@@ -34,20 +35,12 @@ class TokenProviderTest {
     @InjectMocks
     private TokenProvider tokenProvider;
 
-    @Value("${jwt.secret}")
-    private String secretKey;
-
     private Key key;
-
-    @Value("${token-validity-in-milliseconds}")
-    private long refreshTokenValidityInMs;
+    private String secretKey = "a71b8a7edfd427da96e2460b24b6eebe";
 
     private String BEARER_PREFIX = "Bearer ";
-
     private final String USER_ID = "userId";
-
     private final String AUTHORIZATION_KEY = "auth";
-
     private final Authority authority = new Authority("ROLE_USER");
 
     private final User TEST_USER = User.builder()
@@ -87,13 +80,9 @@ class TokenProviderTest {
 
     @Test
     @DisplayName("RefreshToken 생성 성공")
-    public void generateRefreshToken() {
+    void generateRefreshToken() {
         //When
-        String token = tokenProvider.createRefreshToken(
-            TEST_USER.getUserId(),
-            TEST_USER.getUsername(),
-            TEST_USER.getAuthorities()
-        );
+        String token = tokenProvider.createRefreshToken();
 
         //Then
         Claims claims = Jwts.parserBuilder()
@@ -118,7 +107,7 @@ class TokenProviderTest {
         @DisplayName("유효한 토큰 검증")
         void 유효한_토큰_검증() {
             //given
-            String token = tokenProvider.createRefreshToken(
+            String token = tokenProvider.createAccessToken(
                 TEST_USER.getUserId(),
                 TEST_USER.getUsername(),
                 TEST_USER.getAuthorities()
@@ -133,7 +122,7 @@ class TokenProviderTest {
 
         @Test
         @DisplayName("유효하지 않은 토큰 검증")
-        void 유효한_토큰_검증() {
+        void 유효하지않은_토큰_검증() {
             //given
             String token = "isNotValidToken";
 
