@@ -22,4 +22,5 @@ jwt:
   header: Authorization
   secret: a71b8a7edfd427da96e2460b24b6eebe7bd0a6c24aae5a3b0728e843e29f632809a717e6c0825c979def91612c625e70d821a51512fed72ff18aca638a7c4c41
   token-validity-in-milliseconds: 86400 # ttl (Sec)
+  refresh-token-validity-in-milliseconds: 604800000 # 1 week in milliseconds
 
